@@ -28,13 +28,13 @@ struct SchedulePoint {
 };
 
 SchedulePoint schedule[] = {
-  { 6,  45, {5,  5,  5,  5}},
-  { 7,  0, {0, 0, 0, 0}},
-  { 16,  0, {50, 50, 50, 50}},
-  {18,  0, {100, 100, 100, 100}},
-  {20,  30, {30, 30, 30, 30}},
-  {21,  30, {5, 5, 5, 5}},
-  {22,  0, {0,  0,  0,  0}},
+  { 6,  0, {10,  5,  5,  0}},
+  { 7,  0, {80, 60, 60, 20}},
+  { 8,  0, {100, 90, 90, 30}},
+  {17,  0, {80, 70, 70, 40}},
+  {19,  0, {50, 40, 40, 50}},
+  {21,  0, {25, 15, 15, 20}},
+  {23,  0, {5,  2,  5,  0}},
   { 0,  0, {0,  0,  0,  0}}
 };
 const int numSchedulePoints = sizeof(schedule) / sizeof(SchedulePoint);
@@ -48,28 +48,28 @@ AsyncWebSocket ws("/ws");
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", -25200); // PDT is UTC-7 (-25200 seconds)
 
-// --- Web Page HTML/CSS/JS (stored in PROGMEM to save RAM) -
+// --- Web Page HTML/CSS/JS (stored in PROGMEM to save RAM) ---
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luces de Mama 🐣</title>
+    <title>ESP32 Light Controller</title>
     <style>
         :root {
-        --bg-grad-1: #000428;
-        --bg-grad-2: #004e92;
-        --text-color: #f0f0f0;
-        --slider-bg: #2a3d45;
-        --thumb-color: #6dd5ed;
-        --active-track-1: #2193b0;
-        --active-track-2: #6dd5ed;
-	}
+            --bg-grad-1: #000428;
+            --bg-grad-2: #004e92;
+            --text-color: #f0f0f0;
+            --slider-bg: #2a3d45;
+            --thumb-color: #6dd5ed;
+            --active-track-1: #2193b0;
+            --active-track-2: #6dd5ed;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(-45deg, var(--bg-grad-1), var(--bg-grad-2), #00305a, #005a8d);
-            background-size: 400%% 400%%;
+            background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             color: var(--text-color);
             margin: 0;
@@ -77,9 +77,9 @@ const char index_html[] PROGMEM = R"rawliteral(
             text-align: center;
         }
         @keyframes gradientBG {
-            0%% { background-position: 0%% 50%%; }
-            50%% { background-position: 100%% 50%%; }
-            100%% { background-position: 0%% 50%%; }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         h1, h2 {
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -105,7 +105,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         }
         input[type="range"] {
             -webkit-appearance: none;
-            width: 80%%;
+            width: 80%;
             height: 30px;
             background: var(--slider-bg);
             border-radius: 15px;
@@ -132,7 +132,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             border: 3px solid #fff;
         }
         table {
-            width: 100%%;
+            width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
             background: rgba(255,255,255,0.1);
@@ -149,7 +149,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 </head>
 <body>
     <div class="container">
-        <h1>💡💫Cocina🍴💡</h1>
+        <h1>💡 Light Controller</h1>
         <div class="sliders">
             <h2>Master Control</h2>
             <div class="slider-group">
@@ -203,7 +203,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 
         function updateSliderLook(slider) {
             let percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
-            slider.style.background = `linear-gradient(to right, var(--active-track-1), var(--active-track-2) ${percentage}%%, var(--slider-bg) ${percentage}%%)`;
+            slider.style.background = `linear-gradient(to right, var(--active-track-1), var(--active-track-2) ${percentage}%, var(--slider-bg) ${percentage}%)`;
         }
 
         function sendSliderValue(id, value) {
@@ -235,6 +235,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 </body>
 </html>
 )rawliteral";
+
 
 // --- Helper Functions ---
 
@@ -319,24 +320,19 @@ String processor(const String& var){
     return s;
   }
   if(var == "SCHEDULE"){
-    // --- CORRECTED TABLE GENERATION ---
-    String table = "<table><thead><tr><th>Time</th>"; // Added <thead> for structure
-    for(int i=0; i<NUM_CHANNELS; i++) {
-      table += "<th>Ch " + String(i+1) + "</th>";
-    }
-    table += "</tr></thead><tbody>"; // Closed <thead>, opened <tbody>
-
+    String table = "<table><tr><th>Time</th>";
+    for(int i=0; i<NUM_CHANNELS; i++) { table += "<th>Ch " + String(i+1) + "</th>"; }
+    table += "</tr>";
     for(int i=0; i<numSchedulePoints; i++){
       char timeStr[6];
       sprintf(timeStr, "%02d:%02d", schedule[i].hour, schedule[i].minute);
       table += "<tr><td>" + String(timeStr) + "</td>";
       for(int j=0; j<NUM_CHANNELS; j++){
-        // Removed the "%" symbol to ensure clean data for JavaScript
-        table += "<td>" + String(schedule[i].brightness[j]) + "</td>";
+        table += "<td>" + String(schedule[i].brightness[j]) + "%</td>";
       }
       table += "</tr>";
     }
-    table += "</tbody></table>"; // Closed </tbody>
+    table += "</table>";
     return table;
   }
   if(var == "NUM_CHANNELS"){

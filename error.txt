@@ -1,0 +1,332 @@
+ *  Executing task in folder KitchenLights2.0: platformio run --environment freenove_esp32_wrover 
+
+Processing freenove_esp32_wrover (platform: espressif32; board: freenove_esp32_wrover; framework: arduino)
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif32/freenove_esp32_wrover.html
+PLATFORM: Espressif 32 (6.10.0) > Freenove ESP32-Wrover
+HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash
+DEBUG: Current (cmsis-dap) External (cmsis-dap, esp-bridge, esp-prog, iot-bus-jtag, jlink, minimodule, olimex-arm-usb-ocd, olimex-arm-usb-ocd-h, olimex-arm-usb-tiny-h, olimex-jtag-tiny, tumpa)
+PACKAGES: 
+ - framework-arduinoespressif32 @ 3.20017.241212+sha.dcc1105b 
+ - tool-esptoolpy @ 1.40501.0 (4.5.1) 
+ - toolchain-xtensa-esp32 @ 8.4.0+2021r2-patch5
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 38 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- ArduinoJson @ 7.4.2
+|-- ESPAsyncWebServer @ 3.7.10
+|-- ArduinoOTA @ 2.0.0
+|-- ESPmDNS @ 2.0.0
+|-- WiFi @ 2.0.0
+Building in release mode
+Compiling .pio/build/freenove_esp32_wrover/libbff/RPAsyncTCP/RPAsyncTCP.cpp.o
+Compiling .pio/build/freenove_esp32_wrover/libbff/RPAsyncTCP/SyncClient.cpp.o
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/opt.h:51,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/ip_addr.h:40,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/tcpip_adapter/include/tcpip_adapter_types.h:18,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/tcpip_adapter/include/tcpip_adapter.h:24,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_netif/include/esp_netif.h:35,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_event/include/esp_event_legacy.h:22,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_event/include/esp_event.h:28,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiGeneric.h:27,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiSTA.h:28,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h:32,
+                 from .pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.h:5,
+                 from .pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/SyncClient.cpp:7:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/lwipopts.h:439: warning: "TCP_MSS" redefined
+ #define TCP_MSS                         CONFIG_LWIP_TCP_MSS
+ 
+In file included from .pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/SyncClient.h:14,
+                 from .pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/SyncClient.cpp:6:
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/async_config.h:9: note: this is the location of the previous definition
+   #define TCP_MSS       MBED_CONF_LWIP_TCP_MSS        //(1460)
+ 
+Compiling .pio/build/freenove_esp32_wrover/lib5ec/ESPAsyncTCP/AsyncPrinter.cpp.o
+Compiling .pio/build/freenove_esp32_wrover/lib5ec/ESPAsyncTCP/ESPAsyncTCP.cpp.o
+In file included from .pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/SyncClient.h:14,
+                 from .pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/SyncClient.cpp:6:
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/async_config.h:9:25: error: 'MBED_CONF_LWIP_TCP_MSS' was not declared in this scope
+   #define TCP_MSS       MBED_CONF_LWIP_TCP_MSS        //(1460)
+                         ^~~~~~~~~~~~~~~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/SyncClient.h:40:34: note: in expansion of macro 'TCP_MSS'
+     SyncClient(size_t txBufLen = TCP_MSS);
+                                  ^~~~~~~
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/async_config.h:9:25: note: suggested alternative: 'CONFIG_LWIP_TCP_MSS'
+   #define TCP_MSS       MBED_CONF_LWIP_TCP_MSS        //(1460)
+                         ^~~~~~~~~~~~~~~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/SyncClient.h:40:34: note: in expansion of macro 'TCP_MSS'
+     SyncClient(size_t txBufLen = TCP_MSS);
+                                  ^~~~~~~
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/async_config.h:9:25: error: 'MBED_CONF_LWIP_TCP_MSS' was not declared in this scope
+   #define TCP_MSS       MBED_CONF_LWIP_TCP_MSS        //(1460)
+                         ^~~~~~~~~~~~~~~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/SyncClient.h:41:55: note: in expansion of macro 'TCP_MSS'
+     SyncClient(AsyncClient *client, size_t txBufLen = TCP_MSS);
+                                                       ^~~~~~~
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp: In member function 'bool AsyncClient::connect(IPAddress, uint16_t)':
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:231:8: error: 'ip_addr_t' {aka 'struct ip_addr'} has no member named 'addr'; did you mean 'u_addr'?
+   addr.addr = ip;
+        ^~~~
+        u_addr
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp: In member function 'bool AsyncClient::connect(const char*, uint16_t)':
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:290:42: error: 'ip_addr_t' {aka 'struct ip_addr'} has no member named 'addr'; did you mean 'u_addr'?
+     returnValue = connect(IPAddress(addr.addr), port);
+                                          ^~~~
+                                          u_addr
+In file included from .pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.h:15,
+                 from .pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:7:
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:293:73: error: 'ip_addr_t' {aka 'struct ip_addr'} has no member named 'addr'; did you mean 'u_addr'?
+     ATCP_LOGDEBUG3("connect: dns_gethostbyname => IP =", IPAddress(addr.addr), ", returnValue = ", returnValue ? "TRUE" : "FALSE");
+                                                                         ^~~~
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP_Debug.h:61:122: note: in definition of macro 'ATCP_LOGDEBUG3'
+ #define ATCP_LOGDEBUG3(x,y,z,w)  if(_RPAsyncTCP_LOGLEVEL_>3) { ATCP_PRINT_MARK; ATCP_PRINT(x); ATCP_PRINT_SP; ATCP_PRINT(y); ATCP_PRINT_SP; ATCP_PRINT(z); ATCP_PRINT_SP; ATCP_PRINTLN(w); }
+                                                                                                                          ^
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp: In member function 'bool AsyncClient::operator==(const AsyncClient&) const':
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:368:66: error: 'ip_addr_t' {aka 'struct ip_addr'} has no member named 'addr'; did you mean 'u_addr'?
+   return (_pcb != NULL && other._pcb != NULL && (_pcb->remote_ip.addr == other._pcb->remote_ip.addr) &&
+                                                                  ^~~~
+                                                                  u_addr
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:368:96: error: 'ip_addr_t' {aka 'struct ip_addr'} has no member named 'addr'; did you mean 'u_addr'?
+   return (_pcb != NULL && other._pcb != NULL && (_pcb->remote_ip.addr == other._pcb->remote_ip.addr) &&
+                                                                                                ^~~~
+                                                                                                u_addr
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp: In member function 'void AsyncClient::_dns_found(ip_addr_t*)':
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:927:26: error: 'ip_addr_t' {aka 'struct ip_addr'} has no member named 'addr'; did you mean 'u_addr'?
+     connect(IPAddress(p->addr), _connect_port);
+                          ^~~~
+                          u_addr
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp: In member function 'uint32_t AsyncClient::getRemoteAddress() const':
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:1136:26: error: 'ip_addr_t' {aka 'struct ip_addr'} has no member named 'addr'; did you mean 'u_addr'?
+   return _pcb->remote_ip.addr;
+                          ^~~~
+                          u_addr
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp: In member function 'uint32_t AsyncClient::getLocalAddress() const':
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:1156:25: error: 'ip_addr_t' {aka 'struct ip_addr'} has no member named 'addr'; did you mean 'u_addr'?
+   return _pcb->local_ip.addr;
+                         ^~~~
+                         u_addr
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp: In member function 'void AsyncServer::begin()':
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/RPAsyncTCP.cpp:1621:14: error: 'ip_addr_t' {aka 'struct ip_addr'} has no member named 'addr'; did you mean 'u_addr'?
+   local_addr.addr = (uint32_t) _addr;
+              ^~~~
+              u_addr
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/async_config.h:9:25: note: suggested alternative: 'CONFIG_LWIP_TCP_MSS'
+   #define TCP_MSS       MBED_CONF_LWIP_TCP_MSS        //(1460)
+                         ^~~~~~~~~~~~~~~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/RPAsyncTCP/src/SyncClient.h:41:55: note: in expansion of macro 'TCP_MSS'
+     SyncClient(AsyncClient *client, size_t txBufLen = TCP_MSS);
+                                                       ^~~~~~~
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/opt.h:51,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/init.h:40,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.h:31,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.h:26,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp:22:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/lwipopts.h:439: warning: "TCP_MSS" redefined
+ #define TCP_MSS                         CONFIG_LWIP_TCP_MSS
+ 
+In file included from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.h:25,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.h:26,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp:22:
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/async_config.h:13: note: this is the location of the previous definition
+ #define TCP_MSS (1460)
+ 
+*** [.pio/build/freenove_esp32_wrover/libbff/RPAsyncTCP/RPAsyncTCP.cpp.o] Error 1
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/opt.h:51,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/init.h:40,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.h:31,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:76:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/lwipopts.h:439: warning: "TCP_MSS" redefined
+ #define TCP_MSS                         CONFIG_LWIP_TCP_MSS
+ 
+In file included from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.h:25,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:76:
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/async_config.h:13: note: this is the location of the previous definition
+ #define TCP_MSS (1460)
+ 
+*** [.pio/build/freenove_esp32_wrover/libbff/RPAsyncTCP/SyncClient.cpp.o] Error 1
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp: In constructor 'AsyncPrinter::AsyncPrinter(AsyncClient*, size_t)':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp:48:5: error: 'panic' was not declared in this scope
+     panic(); //What should we do?
+     ^~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp: In member function 'int AsyncPrinter::connect(IPAddress, uint16_t)':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp:71:5: error: 'panic' was not declared in this scope
+     panic();
+     ^~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp: In member function 'int AsyncPrinter::connect(const char*, uint16_t)':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp:88:5: error: 'panic' was not declared in this scope
+     panic();
+     ^~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp: In member function 'void AsyncPrinter::_onConnect(AsyncClient*)':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp:109:5: error: 'panic' was not declared in this scope
+     panic();
+     ^~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp: In member function 'AsyncPrinter& AsyncPrinter::operator=(const AsyncPrinter&)':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp:130:5: error: 'panic' was not declared in this scope
+     panic();
+     ^~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp: In member function 'size_t AsyncPrinter::_sendBuffer()':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/AsyncPrinter.cpp:182:5: error: 'panic' was not declared in this scope
+     panic(); // Connection should be aborted instead
+     ^~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp: In member function 'bool AsyncClient::connect(IPAddress, uint16_t)':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:267:33: error: invalid user-defined conversion from 'IPAddress' to 'const ip_addr_t*' {aka 'const ip_addr*'} [-fpermissive]
+   size_t err = tcp_connect(pcb, addr, port,(tcp_connected_fn)&_s_connected);
+                                 ^~~~
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:192,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:74:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:59:5: note: candidate is: 'IPAddress::operator uint32_t() const' <near match>
+     operator uint32_t() const
+     ^~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:59:5: note:   no known conversion from 'uint32_t' {aka 'unsigned int'} to 'const ip_addr_t*' {aka 'const ip_addr*'}
+In file included from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:79:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/tcp.h:461:18: note:   initializing argument 2 of 'err_t tcp_connect(tcp_pcb*, const ip_addr_t*, u16_t, tcp_connected_fn)'
+ err_t            tcp_connect (struct tcp_pcb *pcb, const ip_addr_t *ipaddr,
+                  ^~~~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp: In member function 'bool AsyncClient::connect(const char*, uint16_t)':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:277:39: error: invalid user-defined conversion from 'IPAddress' to 'ip_addr_t*' {aka 'ip_addr*'} [-fpermissive]
+   err_t err = dns_gethostbyname(host, addr, (dns_found_callback)&_s_dns_found, this);
+                                       ^~~~
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:192,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:74:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:59:5: note: candidate is: 'IPAddress::operator uint32_t() const' <near match>
+     operator uint32_t() const
+     ^~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:59:5: note:   no known conversion from 'uint32_t' {aka 'unsigned int'} to 'ip_addr_t*' {aka 'ip_addr*'}
+In file included from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:81:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/dns.h:109:18: note:   initializing argument 2 of 'err_t dns_gethostbyname(const char*, ip_addr_t*, dns_found_callback, void*)'
+ err_t            dns_gethostbyname(const char *hostname, ip_addr_t *addr,
+                  ^~~~~~~~~~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp: In member function 'bool AsyncClient::operator==(const AsyncClient&)':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:331:75: error: no matching function for call to 'IPAddress::IPAddress(ip_addr_t&)'
+   return (_pcb != NULL && other._pcb != NULL && (IPAddress(_pcb->remote_ip) ==  IPAddress(other._pcb->remote_ip)) && (_pcb->remote_port == other._pcb->remote_port));
+                                                                           ^
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:192,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:74:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:51:5: note: candidate: 'IPAddress::IPAddress(const uint8_t*)'
+     IPAddress(const uint8_t *address);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:51:5: note:   no known conversion for argument 1 from 'ip_addr_t' {aka 'ip_addr'} to 'const uint8_t*' {aka 'const unsigned char*'}
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:50:5: note: candidate: 'IPAddress::IPAddress(uint32_t)'
+     IPAddress(uint32_t address);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:50:5: note:   no known conversion for argument 1 from 'ip_addr_t' {aka 'ip_addr'} to 'uint32_t' {aka 'unsigned int'}
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:49:5: note: candidate: 'IPAddress::IPAddress(uint8_t, uint8_t, uint8_t, uint8_t)'
+     IPAddress(uint8_t first_octet, uint8_t second_octet, uint8_t third_octet, uint8_t fourth_octet);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:49:5: note:   candidate expects 4 arguments, 1 provided
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:48:5: note: candidate: 'IPAddress::IPAddress()'
+     IPAddress();
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:48:5: note:   candidate expects 0 arguments, 1 provided
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:29:7: note: candidate: 'constexpr IPAddress::IPAddress(const IPAddress&)'
+ class IPAddress: public Printable
+       ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:29:7: note:   no known conversion for argument 1 from 'ip_addr_t' {aka 'ip_addr'} to 'const IPAddress&'
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:331:112: error: no matching function for call to 'IPAddress::IPAddress(ip_addr_t&)'
+   return (_pcb != NULL && other._pcb != NULL && (IPAddress(_pcb->remote_ip) ==  IPAddress(other._pcb->remote_ip)) && (_pcb->remote_port == other._pcb->remote_port));
+                                                                                                                ^
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:192,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:74:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:51:5: note: candidate: 'IPAddress::IPAddress(const uint8_t*)'
+     IPAddress(const uint8_t *address);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:51:5: note:   no known conversion for argument 1 from 'ip_addr_t' {aka 'ip_addr'} to 'const uint8_t*' {aka 'const unsigned char*'}
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:50:5: note: candidate: 'IPAddress::IPAddress(uint32_t)'
+     IPAddress(uint32_t address);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:50:5: note:   no known conversion for argument 1 from 'ip_addr_t' {aka 'ip_addr'} to 'uint32_t' {aka 'unsigned int'}
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:49:5: note: candidate: 'IPAddress::IPAddress(uint8_t, uint8_t, uint8_t, uint8_t)'
+     IPAddress(uint8_t first_octet, uint8_t second_octet, uint8_t third_octet, uint8_t fourth_octet);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:49:5: note:   candidate expects 4 arguments, 1 provided
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:48:5: note: candidate: 'IPAddress::IPAddress()'
+     IPAddress();
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:48:5: note:   candidate expects 0 arguments, 1 provided
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:29:7: note: candidate: 'constexpr IPAddress::IPAddress(const IPAddress&)'
+ class IPAddress: public Printable
+       ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:29:7: note:   no known conversion for argument 1 from 'ip_addr_t' {aka 'ip_addr'} to 'const IPAddress&'
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp: In member function 'void AsyncClient::_dns_found(const ip_addr*)':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:710:13: error: invalid conversion from 'const ip_addr*' to 'uint32_t' {aka 'unsigned int'} [-fpermissive]
+     connect(ipaddr, _connect_port);
+             ^~~~~~
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:192,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:74:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:50:24: note:   initializing argument 1 of 'IPAddress::IPAddress(uint32_t)'
+     IPAddress(uint32_t address);
+               ~~~~~~~~~^~~~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp: In member function 'IPAddress AsyncClient::remoteIP()':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:861:23: error: call of overloaded 'IPAddress(int)' is ambiguous
+     return IPAddress(0);
+                       ^
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:192,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:74:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:51:5: note: candidate: 'IPAddress::IPAddress(const uint8_t*)'
+     IPAddress(const uint8_t *address);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:50:5: note: candidate: 'IPAddress::IPAddress(uint32_t)'
+     IPAddress(uint32_t address);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:29:7: note: candidate: 'constexpr IPAddress::IPAddress(const IPAddress&)'
+ class IPAddress: public Printable
+       ^~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:862:16: error: could not convert '((AsyncClient*)this)->AsyncClient::_pcb->tcp_pcb::remote_ip' from 'ip_addr_t' {aka 'ip_addr'} to 'IPAddress'
+   return _pcb->remote_ip;
+          ~~~~~~^~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp: In member function 'IPAddress AsyncClient::localIP()':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:871:23: error: call of overloaded 'IPAddress(int)' is ambiguous
+     return IPAddress(0);
+                       ^
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:192,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:74:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:51:5: note: candidate: 'IPAddress::IPAddress(const uint8_t*)'
+     IPAddress(const uint8_t *address);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:50:5: note: candidate: 'IPAddress::IPAddress(uint32_t)'
+     IPAddress(uint32_t address);
+     ^~~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:29:7: note: candidate: 'constexpr IPAddress::IPAddress(const IPAddress&)'
+ class IPAddress: public Printable
+       ^~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:872:16: error: could not convert '((AsyncClient*)this)->AsyncClient::_pcb->tcp_pcb::local_ip' from 'ip_addr_t' {aka 'ip_addr'} to 'IPAddress'
+   return _pcb->local_ip;
+          ~~~~~~^~~~~~~~
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/ip.h:44,
+                 from /home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/tcp.h:48,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:79:
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp: In constructor 'AsyncServer::AsyncServer(uint16_t)':
+/home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/ip_addr.h:434:25: error: invalid conversion from 'const ip_addr_t*' {aka 'const ip_addr*'} to 'uint32_t' {aka 'unsigned int'} [-fpermissive]
+ #define IP_ANY_TYPE    (&ip_addr_any_type)
+                        ~^~~~~~~~~~~~~~~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:1081:11: note: in expansion of macro 'IP_ANY_TYPE'
+   , _addr(IP_ANY_TYPE)
+           ^~~~~~~~~~~
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:192,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:74:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:50:24: note:   initializing argument 1 of 'IPAddress::IPAddress(uint32_t)'
+     IPAddress(uint32_t address);
+               ~~~~~~~~~^~~~~~~
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp: In member function 'void AsyncServer::begin()':
+.pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:1128:23: error: invalid user-defined conversion from 'IPAddress' to 'const ip_addr_t*' {aka 'const ip_addr*'} [-fpermissive]
+   err = tcp_bind(pcb, local_addr, _port);
+                       ^~~~~~~~~~
+In file included from /home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h:192,
+                 from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:74:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:59:5: note: candidate is: 'IPAddress::operator uint32_t() const' <near match>
+     operator uint32_t() const
+     ^~~~~~~~
+/home/evm100/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPAddress.h:59:5: note:   no known conversion from 'uint32_t' {aka 'unsigned int'} to 'const ip_addr_t*' {aka 'const ip_addr*'}
+In file included from .pio/libdeps/freenove_esp32_wrover/ESPAsyncTCP/src/ESPAsyncTCP.cpp:79:
+/home/evm100/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/tcp.h:458:18: note:   initializing argument 2 of 'err_t tcp_bind(tcp_pcb*, const ip_addr_t*, u16_t)'
+ err_t            tcp_bind    (struct tcp_pcb *pcb, const ip_addr_t *ipaddr,
+                  ^~~~~~~~
+*** [.pio/build/freenove_esp32_wrover/lib5ec/ESPAsyncTCP/AsyncPrinter.cpp.o] Error 1
+*** [.pio/build/freenove_esp32_wrover/lib5ec/ESPAsyncTCP/ESPAsyncTCP.cpp.o] Error 1
+============================================================================== [FAILED] Took 4.23 seconds ==============================================================================
+
+ *  The terminal process "platformio 'run', '--environment', 'freenove_esp32_wrover'" terminated with exit code: 1. 
+ *  Terminal will be reused by tasks, press any key to close it. 
