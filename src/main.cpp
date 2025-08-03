@@ -10,10 +10,10 @@ const char* ssid = "Verastegui";
 const char* password = "6162988135";
 
 // --- Configuration ---
-const int NUM_CHANNELS = 4;
+const int NUM_CHANNELS = 3;
 // ⭐ UPDATE PINS FOR YOUR LED CHANNELS
-uint8_t ledPins[NUM_CHANNELS] = {23, 22, 21, 19}; 
-int brightness[NUM_CHANNELS] = {0, 0, 0, 0};
+uint8_t ledPins[NUM_CHANNELS] = {12, 25, 34}; 
+int brightness[NUM_CHANNELS] = {0, 0, 0};
 
 // PWM Properties
 const int PWM_FREQ = 5000;
@@ -28,19 +28,18 @@ struct SchedulePoint {
 };
 
 SchedulePoint schedule[] = {
-  { 6,  45, {5,  5,  5,  5}},
-  { 7,  0, {0, 0, 0, 0}},
-  { 16,  0, {50, 50, 50, 50}},
-  {18,  0, {100, 100, 100, 100}},
-  {20,  30, {30, 30, 30, 30}},
-  {21,  30, {5, 5, 5, 5}},
-  {22,  0, {0,  0,  0,  0}},
-  { 0,  0, {0,  0,  0,  0}}
+  { 6,  45, {5,  5,  5}},
+  { 7,  0, {0, 0, 0}},
+  { 16,  0, {50, 50, 50}},
+  {18,  0, {100, 100, 100}},
+  {20,  30, {30, 30, 30}},
+  {21,  30, {5, 5, 5}},
+  {22,  0, {0,  0,  0}},
+  { 0,  0, {0,  0,  0}}
 };
 const int numSchedulePoints = sizeof(schedule) / sizeof(SchedulePoint);
 bool manualOverride = false;
 bool noonRebootFlag = false;
-
 
 // --- Network & Web Server ---
 AsyncWebServer server(80);
@@ -153,12 +152,12 @@ const char index_html[] PROGMEM = R"rawliteral(
         <div class="sliders">
             <h2>Master Control</h2>
             <div class="slider-group">
-                <label for="master">All Channels</label>
+                <!--<label for="master">All Channels</label>-->
                 <input type="range" min="0" max="100" value="0" class="slider" id="master">
             </div>
-            <hr>
+            <!-- <hr>
             <h2>Individual Channels</h2>
-            %SLIDERS%
+            %SLIDERS% -->
         </div>
         <div class="schedule">
             <h2>24h Schedule</h2>
@@ -198,7 +197,12 @@ const char index_html[] PROGMEM = R"rawliteral(
                     slider.value = data.brightness[i];
                     updateSliderLook(slider);
                 }
-            }
+           	 let sliderId = 'm';
+	    	let slider = document.getElementById(sliderId);
+	    	if slider(slider) {
+			    slider.value = averageBrightness();
+		   	 updateSliderLook(slider);
+	    }
         }
 
         function updateSliderLook(slider) {
@@ -249,11 +253,16 @@ void setBrightness(int channel, int value) { // value is 0-100
 
 // Send current brightness states to all connected web clients
 void notifyClients() {
-  String json = "{\"brightness\":[";
+  int avg = 0;
+	String json = "{\"brightness\":[";
   for(int i=0; i < NUM_CHANNELS; i++) {
     json += String(brightness[i]);
-    if (i < NUM_CHANNELS - 1) json += ",";
+    //if (i < NUM_CHANNELS - 1) 
+    json += ",";
+    avg += brightness[i];
   }
+  avg = avg/3;
+  json += "${avg}";
   json += "]}";
   ws.textAll(json);
 }
@@ -308,33 +317,32 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 String processor(const String& var){
   Serial.println("Processor called for: " + var);
   if(var == "SLIDERS"){
-    String s = "";
-    for(int i=0; i<NUM_CHANNELS; i++){
-      s += "<div class='slider-group'>";
-      s += "<label for='s" + String(i) + "'>Channel " + String(i+1) + "</label>";
-      s += "<input type='range' min='0' max='100' value='" + String(brightness[i]) + "' class='slider' id='s" + String(i) + "'>";
-      s += "</div>";
-    }
-    Serial.println("Generated SLIDERS HTML.");
-    return s;
+    //String s = "";
+    //for(int i=0; i<NUM_CHANNELS; i++){
+    //  s += "<div class='slider-group'>";
+    //  s += "<label for='s" + String(i) + "'>Channel " + String(i+1) + "</label>";
+    //  s += "<input type='range' min='0' max='100' value='" + String(brightness[i]) + "' class='slider' id='s" + String(i) + "'>";
+    //  s += "</div>";
+    //}
+    //Serial.println("Generated SLIDERS HTML.");
+    //return s;
   }
   if(var == "SCHEDULE"){
     // --- CORRECTED TABLE GENERATION ---
     String table = "<table><thead><tr><th>Time</th>"; // Added <thead> for structure
-    for(int i=0; i<NUM_CHANNELS; i++) {
-      table += "<th>Ch " + String(i+1) + "</th>";
-    }
+    table += "<th>Brightness</th>";
     table += "</tr></thead><tbody>"; // Closed <thead>, opened <tbody>
 
     for(int i=0; i<numSchedulePoints; i++){
       char timeStr[6];
       sprintf(timeStr, "%02d:%02d", schedule[i].hour, schedule[i].minute);
       table += "<tr><td>" + String(timeStr) + "</td>";
-      for(int j=0; j<NUM_CHANNELS; j++){
-        // Removed the "%" symbol to ensure clean data for JavaScript
-        table += "<td>" + String(schedule[i].brightness[j]) + "</td>";
+     int avg = 0;
+      for (int j=0; j<NUM_CHANNELS; j++){
+	avg += schedule[i].brightness[j];
       }
-      table += "</tr>";
+      avg = avg/3;
+      table += "<td>" + String(avg) +"</td></tr>";
     }
     table += "</tbody></table>"; // Closed </tbody>
     return table;
