@@ -56,94 +56,81 @@ const char index_html[] PROGMEM = R"rawliteral(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luces de Mama 🐣</title>
     <style>
-        :root {
-        --bg-grad-1: #000428;
-        --bg-grad-2: #004e92;
-        --text-color: #f0f0f0;
-        --slider-bg: #2a3d45;
-        --thumb-color: #6dd5ed;
-        --active-track-1: #2193b0;
-        --active-track-2: #6dd5ed;
-	}
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(-45deg, var(--bg-grad-1), var(--bg-grad-2), #00305a, #005a8d);
-            background-size: 400%% 400%%;
-            animation: gradientBG 15s ease infinite;
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        @keyframes gradientBG {
-            0%% { background-position: 0%% 50%%; }
-            50%% { background-position: 100%% 50%%; }
-            100%% { background-position: 0%% 50%%; }
-        }
-        h1, h2 {
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: rgba(0,0,0,0.3);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-        .sliders, .schedule {
-            margin-bottom: 20px;
-        }
-        .slider-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 80%%;
-            height: 30px;
-            background: var(--slider-bg);
-            border-radius: 15px;
-            outline: none;
-            padding: 0;
-            margin: 0;
-            cursor: pointer;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 45px;
-            height: 45px;
-            background: var(--thumb-color);
-            border-radius: 50%;
-            border: 3px solid #fff;
-            box-shadow: 0 0 8px rgba(109, 213, 237, 0.7);
-        }
-        input[type="range"]::-moz-range-thumb {
-            width: 40px;
-            height: 40px;
-            background: var(--thumb-color);
-            border-radius: 50%;
-            border: 3px solid #fff;
-        }
-        table {
-            width: 100%%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-        }
-        th, td {
-            padding: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        th {
-            background-color: rgba(0,0,0,0.2);
-        }
+			:root {
+--bg-grad-1: #000428;
+--bg-grad-2: #004e92;
+--text-color: #f0f0f0;
+--slider-bg: #2a3d45;
+--thumb-color: #6dd5ed;
+--active-track-1: #2193b0;
+--active-track-2: #6dd5ed;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(-45deg, var(--bg-grad-1), var(--bg-grad-2), #00305a, #005a8d);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+h1, h2 {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+.sliders, .schedule {
+    margin-bottom: 20px;
+}
+.slider-group {
+    margin-bottom: 15px;
+}
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 80%;
+    height: 30px;
+    background: var(--slider-bg);
+    border-radius: 15px;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 45px;
+    height: 45px;
+    background: var(--thumb-color);
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 8px rgba(109, 213, 237, 0.7);
+}
+input[type="range"]::-moz-range-thumb {
+    width: 40px;
+    height: 40px;
+    background: var(--thumb-color);
+    border-radius: 50%;
+    border: 3px solid #fff;
+}
+
     </style>
 </head>
 <body>
@@ -208,11 +195,10 @@ const char index_html[] PROGMEM = R"rawliteral(
         }
     }
 
-    function updateSliderLook(slider) {
-        if (!slider) return;
-        const percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
-        slider.style.background = `linear-gradient(to right, var(--active-track-1), var(--active-track-2) ${percentage}%, var(--slider-bg) ${percentage}%)`;
-    }
+		function updateSliderLook(slider) {
+   		let percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+    	slider.style.background = `linear-gradient(to right, var(--active-track-1), var(--active-track-2) ${percentage}%, var(--slider-bg) ${percentage}%)`;
+		}
 
     function sendSliderValue(id, value) {
         const msg = `${id}:${value}`;
