@@ -163,78 +163,85 @@ const char index_html[] PROGMEM = R"rawliteral(
             %SCHEDULE%
         </div>
     </div>
+	<script>
+    let gateway = `ws://${window.location.hostname}/ws`;
+    let websocket;
+    const NUM_CHANNELS = %NUM_CHANNELS%;
 
-    <script>
-        let gateway = `ws://${window.location.hostname}/ws`;
-        let websocket;
+    function initWebSocket() {
+        console.log('Trying to open a WebSocket connection...');
+        websocket = new WebSocket(gateway);
+        websocket.onopen = onOpen;
+        websocket.onclose = onClose;
+        websocket.onmessage = onMessage;
+    }
 
-        function initWebSocket() {
-            console.log('Trying to open a WebSocket connection...');
-            websocket = new WebSocket(gateway);
-            websocket.onopen = onOpen;
-            websocket.onclose = onClose;
-            websocket.onmessage = onMessage;
+    function onOpen(event) {
+        console.log('Connection opened');
+    }
+
+    function onClose(event) {
+        console.log('Connection closed');
+        setTimeout(initWebSocket, 2000);
+    }
+
+    function onMessage(event) {
+        console.log('Message from server: ', event.data);
+        let data;
+        try {
+            data = JSON.parse(event.data);
+        } catch (e) {
+            console.error("Error parsing JSON:", e);
+            return;
         }
 
-        function onOpen(event) {
-            console.log('Connection opened');
-        }
+        if (data.brightness && Array.isArray(data.brightness)) {
+            // Your C++ code sends the average brightness as the last element in the array
+            const avgBrightness = data.brightness[NUM_CHANNELS];
 
-        function onClose(event) {
-            console.log('Connection closed');
-            setTimeout(initWebSocket, 2000);
+            // Update Master Slider
+            let masterSlider = document.getElementById('m');
+            if (masterSlider) {
+                masterSlider.value = avgBrightness;
+                updateSliderLook(masterSlider);
+            }
         }
+    }
 
-        function onMessage(event) {
-            console.log(event.data);
-            let data = JSON.parse(event.data);
-            // Update individual sliders based on server state
-            for (let i = 0; i < %NUM_CHANNELS%; i++) {
-                let sliderId = `s${i}`;
-                let slider = document.getElementById(sliderId);
-                if (slider) {
-                    slider.value = data.brightness[i];
-                    updateSliderLook(slider);
-                }
-           	 let sliderId = 'm';
-	    	let slider = document.getElementById(sliderId);
-	    	if slider(slider) {
-			    slider.value = averageBrightness();
-		   	 updateSliderLook(slider);
-	    }
-        }
+    function updateSliderLook(slider) {
+        if (!slider) return;
+        const percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+        slider.style.background = `linear-gradient(to right, var(--active-track-1), var(--active-track-2) ${percentage}%, var(--slider-bg) ${percentage}%)`;
+    }
 
-        function updateSliderLook(slider) {
-            let percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
-            slider.style.background = `linear-gradient(to right, var(--active-track-1), var(--active-track-2) ${percentage}%%, var(--slider-bg) ${percentage}%%)`;
-        }
-
-        function sendSliderValue(id, value) {
-            let msg = `${id}:${value}`;
-            console.log(`Sending: ${msg}`);
+    function sendSliderValue(id, value) {
+        const msg = `${id}:${value}`;
+        console.log(`Sending: ${msg}`);
+        if (websocket && websocket.readyState === WebSocket.OPEN) {
             websocket.send(msg);
+        } else {
+            console.log('WebSocket is not connected.');
         }
-        
-        window.addEventListener('load', (event) => {
-            initWebSocket();
-            
-            // Master Slider
-            let slider = document.getElementById('m');
-            slider.addEventListener('input', function() {
+    }
+
+    window.addEventListener('load', (event) => {
+        initWebSocket();
+
+        // Apply initial visual styling to all sliders on the page
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            updateSliderLook(slider);
+        });
+
+        // Master Slider Event Listener
+        let masterSlider = document.getElementById('m');
+        if (masterSlider) {
+            masterSlider.addEventListener('input', function() {
                 updateSliderLook(this);
                 sendSliderValue('m', this.value);
             });
-            
-            // Individual Sliders
-            for(let i=0; i<%NUM_CHANNELS%; i++) {
-                let slider = document.getElementById(`s${i}`);
-                slider.addEventListener('input', function() {
-                    updateSliderLook(this);
-                    sendSliderValue(`s${i}`, this.value);
-                });
-            }
-        });
-    </script>
+        }
+    });
+	</script>
 </body>
 </html>
 )rawliteral";
@@ -430,12 +437,23 @@ void setup() {
     request->send(200, "text/html", index_html, processor);
   });
 
-
   // Start server
   server.begin();
 
-  // Initialize time client
+  // --- ADDED CODE: Initialize time and set initial brightness ---
   timeClient.begin();
+  Serial.println("Fetching initial time from NTP server...");
+  // Force update until time is synchronized
+  while(!timeClient.update()) {
+    timeClient.forceUpdate();
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nTime synchronized.");
+  manualOverride = false; // Ensure schedule runs on first check
+  checkSchedule(); // Set initial brightness based on current time
+  Serial.println("Initial brightness set from schedule.");
+  // --- END ADDED CODE ---
 
   // Initialize OTA
   ArduinoOTA.setHostname("esp32-light-controller");
