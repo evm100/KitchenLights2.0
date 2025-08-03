@@ -151,13 +151,12 @@ const char index_html[] PROGMEM = R"rawliteral(
         <h1>💡💫Cocina🍴💡</h1>
         <div class="sliders">
             <h2>Master Control</h2>
-            <div class="slider-group">
-                <!--<label for="master">All Channels</label>-->
-                <input type="range" min="0" max="100" value="0" class="slider" id="master">
-            </div>
-            <!-- <hr>
+	    %MASTER%
+            <hr>
+	    <!--
             <h2>Individual Channels</h2>
-            %SLIDERS% -->
+            %SLIDERS% 
+	    -->
         </div>
         <div class="schedule">
             <h2>24h Schedule</h2>
@@ -220,8 +219,8 @@ const char index_html[] PROGMEM = R"rawliteral(
             initWebSocket();
             
             // Master Slider
-            const master = document.getElementById('master');
-            master.addEventListener('input', function() {
+            let slider = document.getElementById('m');
+            slider.addEventListener('input', function() {
                 updateSliderLook(this);
                 sendSliderValue('m', this.value);
             });
@@ -261,8 +260,8 @@ void notifyClients() {
     json += ",";
     avg += brightness[i];
   }
-  avg = avg/3;
-  json += "${avg}";
+  avg = avg/NUM_CHANNELS;
+  json += String(avg);
   json += "]}";
   ws.textAll(json);
 }
@@ -316,8 +315,22 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 // Replace placeholders in the HTML
 String processor(const String& var){
   Serial.println("Processor called for: " + var);
+  if(var == "MASTER"){
+	  int avg = 0;
+	  for(int i=0; i<NUM_CHANNELS; i++){
+		  avg += brightness[i];
+	  }
+	  avg = avg/NUM_CHANNELS;
+	  String s = "";
+	s += "<div class='slider-group'>";
+        s += "<input type='range' min='0' max='100' value='" + String(avg) + "' class='slider' id='m'>";
+	s += "</div>";
+  	Serial.println("Generated Master Slider HTML.");
+	return s;
+  }
+
   if(var == "SLIDERS"){
-    //String s = "";
+	  //String s = "";
     //for(int i=0; i<NUM_CHANNELS; i++){
     //  s += "<div class='slider-group'>";
     //  s += "<label for='s" + String(i) + "'>Channel " + String(i+1) + "</label>";
@@ -341,7 +354,7 @@ String processor(const String& var){
       for (int j=0; j<NUM_CHANNELS; j++){
 	avg += schedule[i].brightness[j];
       }
-      avg = avg/3;
+      avg = avg/NUM_CHANNELS;
       table += "<td>" + String(avg) +"</td></tr>";
     }
     table += "</tbody></table>"; // Closed </tbody>
