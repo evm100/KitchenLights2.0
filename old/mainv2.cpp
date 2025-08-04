@@ -10,10 +10,10 @@ const char* ssid = "Verastegui";
 const char* password = "6162988135";
 
 // --- Configuration ---
-const int NUM_CHANNELS = 3;
+const int NUM_CHANNELS = 4;
 // ⭐ UPDATE PINS FOR YOUR LED CHANNELS
-uint8_t ledPins[NUM_CHANNELS] = {12, 25, 34}; 
-int brightness[NUM_CHANNELS] = {0, 0, 0};
+uint8_t ledPins[NUM_CHANNELS] = {23, 22, 21, 19}; 
+int brightness[NUM_CHANNELS] = {0, 0, 0, 0};
 
 // PWM Properties
 const int PWM_FREQ = 5000;
@@ -28,18 +28,19 @@ struct SchedulePoint {
 };
 
 SchedulePoint schedule[] = {
-  { 6,  45, {5,  5,  5}},
-  { 7,  0, {0, 0, 0}},
-  { 16,  0, {50, 50, 50}},
-  {18,  0, {100, 100, 100}},
-  {20,  30, {30, 30, 30}},
-  {21,  30, {5, 5, 5}},
-  {22,  0, {0,  0,  0}},
-  { 0,  0, {0,  0,  0}}
+  { 6,  45, {5,  5,  5,  5}},
+  { 7,  0, {0, 0, 0, 0}},
+  { 16,  0, {50, 50, 50, 50}},
+  {18,  0, {100, 100, 100, 100}},
+  {20,  30, {30, 30, 30, 30}},
+  {21,  30, {5, 5, 5, 5}},
+  {22,  0, {0,  0,  0,  0}},
+  { 0,  0, {0,  0,  0,  0}}
 };
 const int numSchedulePoints = sizeof(schedule) / sizeof(SchedulePoint);
 bool manualOverride = false;
 bool noonRebootFlag = false;
+
 
 // --- Network & Web Server ---
 AsyncWebServer server(80);
@@ -151,97 +152,86 @@ const char index_html[] PROGMEM = R"rawliteral(
         <h1>💡💫Cocina🍴💡</h1>
         <div class="sliders">
             <h2>Master Control</h2>
-	    %MASTER%
+            <div class="slider-group">
+                <label for="master">All Channels</label>
+                <input type="range" min="0" max="100" value="0" class="slider" id="master">
+            </div>
             <hr>
-	    <!--
             <h2>Individual Channels</h2>
-            %SLIDERS% 
-	    -->
+            %SLIDERS%
         </div>
         <div class="schedule">
             <h2>24h Schedule</h2>
             %SCHEDULE%
         </div>
     </div>
-	<script>
-    let gateway = `ws://${window.location.hostname}/ws`;
-    let websocket;
-    const NUM_CHANNELS = %NUM_CHANNELS%;
 
-    function initWebSocket() {
-        console.log('Trying to open a WebSocket connection...');
-        websocket = new WebSocket(gateway);
-        websocket.onopen = onOpen;
-        websocket.onclose = onClose;
-        websocket.onmessage = onMessage;
-    }
+    <script>
+        let gateway = `ws://${window.location.hostname}/ws`;
+        let websocket;
 
-    function onOpen(event) {
-        console.log('Connection opened');
-    }
-
-    function onClose(event) {
-        console.log('Connection closed');
-        setTimeout(initWebSocket, 2000);
-    }
-
-    function onMessage(event) {
-        console.log('Message from server: ', event.data);
-        let data;
-        try {
-            data = JSON.parse(event.data);
-        } catch (e) {
-            console.error("Error parsing JSON:", e);
-            return;
+        function initWebSocket() {
+            console.log('Trying to open a WebSocket connection...');
+            websocket = new WebSocket(gateway);
+            websocket.onopen = onOpen;
+            websocket.onclose = onClose;
+            websocket.onmessage = onMessage;
         }
 
-        if (data.brightness && Array.isArray(data.brightness)) {
-            // Your C++ code sends the average brightness as the last element in the array
-            const avgBrightness = data.brightness[NUM_CHANNELS];
+        function onOpen(event) {
+            console.log('Connection opened');
+        }
 
-            // Update Master Slider
-            let masterSlider = document.getElementById('m');
-            if (masterSlider) {
-                masterSlider.value = avgBrightness;
-                updateSliderLook(masterSlider);
+        function onClose(event) {
+            console.log('Connection closed');
+            setTimeout(initWebSocket, 2000);
+        }
+
+        function onMessage(event) {
+            console.log(event.data);
+            let data = JSON.parse(event.data);
+            // Update individual sliders based on server state
+            for (let i = 0; i < %NUM_CHANNELS%; i++) {
+                let sliderId = `s${i}`;
+                let slider = document.getElementById(sliderId);
+                if (slider) {
+                    slider.value = data.brightness[i];
+                    updateSliderLook(slider);
+                }
             }
         }
-    }
 
-    function updateSliderLook(slider) {
-        if (!slider) return;
-        const percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
-        slider.style.background = `linear-gradient(to right, var(--active-track-1), var(--active-track-2) ${percentage}%, var(--slider-bg) ${percentage}%)`;
-    }
-
-    function sendSliderValue(id, value) {
-        const msg = `${id}:${value}`;
-        console.log(`Sending: ${msg}`);
-        if (websocket && websocket.readyState === WebSocket.OPEN) {
-            websocket.send(msg);
-        } else {
-            console.log('WebSocket is not connected.');
+        function updateSliderLook(slider) {
+            let percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+            slider.style.background = `linear-gradient(to right, var(--active-track-1), var(--active-track-2) ${percentage}%%, var(--slider-bg) ${percentage}%%)`;
         }
-    }
 
-    window.addEventListener('load', (event) => {
-        initWebSocket();
-
-        // Apply initial visual styling to all sliders on the page
-        document.querySelectorAll('input[type="range"]').forEach(slider => {
-            updateSliderLook(slider);
-        });
-
-        // Master Slider Event Listener
-        let masterSlider = document.getElementById('m');
-        if (masterSlider) {
-            masterSlider.addEventListener('input', function() {
+        function sendSliderValue(id, value) {
+            let msg = `${id}:${value}`;
+            console.log(`Sending: ${msg}`);
+            websocket.send(msg);
+        }
+        
+        window.addEventListener('load', (event) => {
+            initWebSocket();
+            
+            // Master Slider
+            const master = document.getElementById('master');
+            master.addEventListener('input', function() {
                 updateSliderLook(this);
                 sendSliderValue('m', this.value);
             });
-        }
-    });
-	</script>
+            
+            // Individual Sliders
+            for(let i=0; i<%NUM_CHANNELS%; i++) {
+                let slider = document.getElementById(`s${i}`);
+                slider.addEventListener('input', function() {
+                    updateSliderLook(this);
+                    sendSliderValue(`s${i}`, this.value);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 )rawliteral";
@@ -259,16 +249,11 @@ void setBrightness(int channel, int value) { // value is 0-100
 
 // Send current brightness states to all connected web clients
 void notifyClients() {
-  int avg = 0;
-	String json = "{\"brightness\":[";
+  String json = "{\"brightness\":[";
   for(int i=0; i < NUM_CHANNELS; i++) {
     json += String(brightness[i]);
-    //if (i < NUM_CHANNELS - 1) 
-    json += ",";
-    avg += brightness[i];
+    if (i < NUM_CHANNELS - 1) json += ",";
   }
-  avg = avg/NUM_CHANNELS;
-  json += String(avg);
   json += "]}";
   ws.textAll(json);
 }
@@ -322,47 +307,34 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 // Replace placeholders in the HTML
 String processor(const String& var){
   Serial.println("Processor called for: " + var);
-  if(var == "MASTER"){
-	  int avg = 0;
-	  for(int i=0; i<NUM_CHANNELS; i++){
-		  avg += brightness[i];
-	  }
-	  avg = avg/NUM_CHANNELS;
-	  String s = "";
-	s += "<div class='slider-group'>";
-        s += "<input type='range' min='0' max='100' value='" + String(avg) + "' class='slider' id='m'>";
-	s += "</div>";
-  	Serial.println("Generated Master Slider HTML.");
-	return s;
-  }
-
   if(var == "SLIDERS"){
-	  //String s = "";
-    //for(int i=0; i<NUM_CHANNELS; i++){
-    //  s += "<div class='slider-group'>";
-    //  s += "<label for='s" + String(i) + "'>Channel " + String(i+1) + "</label>";
-    //  s += "<input type='range' min='0' max='100' value='" + String(brightness[i]) + "' class='slider' id='s" + String(i) + "'>";
-    //  s += "</div>";
-    //}
-    //Serial.println("Generated SLIDERS HTML.");
-    //return s;
+    String s = "";
+    for(int i=0; i<NUM_CHANNELS; i++){
+      s += "<div class='slider-group'>";
+      s += "<label for='s" + String(i) + "'>Channel " + String(i+1) + "</label>";
+      s += "<input type='range' min='0' max='100' value='" + String(brightness[i]) + "' class='slider' id='s" + String(i) + "'>";
+      s += "</div>";
+    }
+    Serial.println("Generated SLIDERS HTML.");
+    return s;
   }
   if(var == "SCHEDULE"){
     // --- CORRECTED TABLE GENERATION ---
     String table = "<table><thead><tr><th>Time</th>"; // Added <thead> for structure
-    table += "<th>Brightness</th>";
+    for(int i=0; i<NUM_CHANNELS; i++) {
+      table += "<th>Ch " + String(i+1) + "</th>";
+    }
     table += "</tr></thead><tbody>"; // Closed <thead>, opened <tbody>
 
     for(int i=0; i<numSchedulePoints; i++){
       char timeStr[6];
       sprintf(timeStr, "%02d:%02d", schedule[i].hour, schedule[i].minute);
       table += "<tr><td>" + String(timeStr) + "</td>";
-     int avg = 0;
-      for (int j=0; j<NUM_CHANNELS; j++){
-	avg += schedule[i].brightness[j];
+      for(int j=0; j<NUM_CHANNELS; j++){
+        // Removed the "%" symbol to ensure clean data for JavaScript
+        table += "<td>" + String(schedule[i].brightness[j]) + "</td>";
       }
-      avg = avg/NUM_CHANNELS;
-      table += "<td>" + String(avg) +"</td></tr>";
+      table += "</tr>";
     }
     table += "</tbody></table>"; // Closed </tbody>
     return table;
@@ -437,23 +409,12 @@ void setup() {
     request->send(200, "text/html", index_html, processor);
   });
 
+
   // Start server
   server.begin();
 
-  // --- ADDED CODE: Initialize time and set initial brightness ---
+  // Initialize time client
   timeClient.begin();
-  Serial.println("Fetching initial time from NTP server...");
-  // Force update until time is synchronized
-  while(!timeClient.update()) {
-    timeClient.forceUpdate();
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("\nTime synchronized.");
-  manualOverride = false; // Ensure schedule runs on first check
-  checkSchedule(); // Set initial brightness based on current time
-  Serial.println("Initial brightness set from schedule.");
-  // --- END ADDED CODE ---
 
   // Initialize OTA
   ArduinoOTA.setHostname("esp32-light-controller");
