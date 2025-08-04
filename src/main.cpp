@@ -187,7 +187,6 @@ const char index_html[] PROGMEM = R"rawliteral(
             <h2>Master Control</h2>
             <div class="slider-container">
                 <div class="slider-group">
-                    <label for="master">All Channels</label>
                     <input type="range" min="0" max="100" value="0" class="slider" id="master">
                 </div>
                 <div id="lockButton">🔓</div>
