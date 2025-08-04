@@ -23,25 +23,25 @@ const int PWM_RESOLUTION = 8; // 8-bit resolution (0-255)
 const int PWM_MAX_VALUE = 255;
 
 // --- Sunset Schedule Parameters ---
+// These values are calculated in setup() after fetching sunset time
 int rampUpStartTimeMinutes = 0;
 int peakBrightTimeMinutes = 0;
 int lightsOffTimeMinutes = 0;
 
-// --- Manual Control State ---
 bool manualOverride = false;
-bool manualLock = false;
-unsigned long manualOverrideStartTime = 0;
-const unsigned long MANUAL_OVERRIDE_TIMEOUT = 3600000; // 1 hour in milliseconds
-
 bool noonRebootFlag = false;
 
 // --- Network & Web Server ---
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", -25200); // PDT is UTC-7
+// Pacific Time is UTC-8, but with daylight saving it's UTC-7.
+// PDT is UTC-7 (-25200 seconds). PST is UTC-8 (-28800).
+// NTPClient handles DST automatically if the timezone rule is set correctly on the server side.
+// For simplicity, we'll use a fixed offset. Adjust if needed.
+NTPClient timeClient(ntpUDP, "pool.ntp.org", -25200); 
 
-// --- Web Page HTML/CSS/JS (stored in PROGMEM) ---
+// --- Web Page HTML/CSS/JS (stored in PROGMEM to save RAM) -
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -54,11 +54,10 @@ const char index_html[] PROGMEM = R"rawliteral(
             --bg-grad-1: #000428;
             --bg-grad-2: #004e92;
             --text-color: #f0f0f0;
-            --slider-bg: #455a64; /* A more visible dark grey for the track */
+            --slider-bg: #2a3d45;
             --thumb-color: #6dd5ed;
             --active-track-1: #2193b0;
             --active-track-2: #6dd5ed;
-            --lock-color: #f0f0f0;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -89,71 +88,42 @@ const char index_html[] PROGMEM = R"rawliteral(
         .sliders, .schedule {
             margin-bottom: 20px;
         }
-        .slider-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
         .slider-group {
-            flex-grow: 1;
+            margin-bottom: 15px;
         }
         label {
             display: block;
             margin-bottom: 10px;
             font-size: 1.2em;
         }
-        
-        /* --- NEW SLIDER STYLES --- */
         input[type="range"] {
             -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 20px; /* This is the track height, thumb is larger */
-            background: transparent; /* Input element is transparent, track is styled below */
+            width: 80%%;
+            height: 30px;
+            background: var(--slider-bg);
+            border-radius: 15px;
             outline: none;
+            padding: 0;
+            margin: 0;
             cursor: pointer;
         }
-
-        /* --- SLIDER THUMB --- */
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 40px; /* Larger thumb */
-            height: 40px; /* Larger thumb */
+            width: 45px;
+            height: 45px;
             background: var(--thumb-color);
             border-radius: 50%;
             border: 3px solid #fff;
             box-shadow: 0 0 8px rgba(109, 213, 237, 0.7);
-            /* Vertically center the thumb on the track */
-            margin-top: -10px; /* (track height - thumb height) / 2 */
         }
         input[type="range"]::-moz-range-thumb {
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             background: var(--thumb-color);
             border-radius: 50%;
             border: 3px solid #fff;
-            border: none; /* FF adds a border, remove it */
         }
-
-        /* --- SLIDER TRACK (RAILING) --- */
-        input[type="range"]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 20px; /* Thicker track */
-            background: var(--slider-bg); /* Solid background color */
-            border-radius: 10px;
-            border: 1px solid rgba(0,0,0,0.2);
-        }
-        input[type="range"]::-moz-range-track {
-            width: 100%;
-            height: 20px;
-            background: var(--slider-bg);
-            border-radius: 10px;
-            border: 1px solid rgba(0,0,0,0.2);
-        }
-        /* --- END NEW SLIDER STYLES --- */
-
         .sky-gradient-circle {
             width: 150px;
             height: 150px;
@@ -162,40 +132,22 @@ const char index_html[] PROGMEM = R"rawliteral(
             background: radial-gradient(circle at 50% 70%, #f7b733, #fc4a1a, #4a1a3a, #141e30);
             box-shadow: 0 0 20px rgba(252, 74, 26, 0.5);
             border: 3px solid rgba(255,255,255,0.3);
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-        .sky-gradient-circle:hover {
-            transform: scale(1.05);
-        }
-        #lockButton {
-            font-size: 2.5em;
-            cursor: pointer;
-            padding: 10px;
-            color: var(--lock-color);
-            transition: transform 0.2s ease, color 0.2s;
-        }
-        #lockButton:hover {
-            transform: scale(1.1);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>💫Cocina de Mamá🍴</h1>
+        <h1>💡💫Cocina🍴💡</h1>
         <div class="sliders">
             <h2>Master Control</h2>
-            <div class="slider-container">
-                <div class="slider-group">
-                    <label for="master">All Channels</label>
-                    <input type="range" min="0" max="100" value="0" class="slider" id="master">
-                </div>
-                <div id="lockButton">🔓</div>
+            <div class="slider-group">
+                <label for="master">All Channels</label>
+                <input type="range" min="0" max="100" value="0" class="slider" id="master">
             </div>
         </div>
         <div class="schedule">
             <h2>Sky Clock</h2>
-            <div class="sky-gradient-circle" id="skyClock"></div>
+            <div class="sky-gradient-circle"></div>
         </div>
     </div>
 
@@ -238,17 +190,9 @@ const char index_html[] PROGMEM = R"rawliteral(
                     updateSliderLook(masterSlider);
                 }
             }
-            
-            if (data.locked !== undefined) {
-                let lockButton = document.getElementById('lockButton');
-                lockButton.innerHTML = data.locked ? '🔒' : '🔓';
-                lockButton.style.color = data.locked ? 'var(--thumb-color)' : 'var(--lock-color)';
-            }
         }
 
         function updateSliderLook(slider) {
-            // This function applies a gradient to the INPUT element. In WebKit,
-            // this gradient is drawn ON TOP of the track's solid background color.
             let percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
             slider.style.background = `linear-gradient(to right, var(--active-track-1), var(--active-track-2) ${percentage}%%, var(--slider-bg) ${percentage}%%)`;
         }
@@ -263,25 +207,11 @@ const char index_html[] PROGMEM = R"rawliteral(
             initWebSocket();
             
             const master = document.getElementById('master');
-            const skyClock = document.getElementById('skyClock');
-            const lockButton = document.getElementById('lockButton');
-
-            // Set the initial look of the slider when the page loads
             updateSliderLook(master); 
 
             master.addEventListener('input', function() {
                 updateSliderLook(this);
                 sendSliderValue('m', this.value);
-            });
-
-            skyClock.addEventListener('click', () => {
-                console.log('Sky Clock clicked, resetting to auto.');
-                websocket.send('reset');
-            });
-
-            lockButton.addEventListener('click', () => {
-                console.log('Lock button clicked.');
-                websocket.send('toggleLock');
             });
         });
     </script>
@@ -291,24 +221,26 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 // --- Helper Functions ---
 
-void setBrightness(int channel, int value) {
+// Function to set a channel's brightness
+void setBrightness(int channel, int value) { // value is 0-100
   if (channel < 0 || channel >= NUM_CHANNELS) return;
   brightness[channel] = constrain(value, 0, 100);
   int pwmValue = map(brightness[channel], 0, 100, 0, PWM_MAX_VALUE);
   ledcWrite(channel, pwmValue);
 }
 
+// Send current brightness states to all connected web clients
 void notifyClients() {
   int total_brightness = 0;
   for(int i=0; i < NUM_CHANNELS; i++) {
     total_brightness += brightness[i];
   }
   int avg = (NUM_CHANNELS > 0) ? (total_brightness / NUM_CHANNELS) : 0;
-  
-  String json = "{\"avg_brightness\":" + String(avg) + ", \"locked\":" + (manualLock ? "true" : "false") + "}";
+  String json = "{\"avg_brightness\":" + String(avg) + "}";
   ws.textAll(json);
 }
 
+// Handle incoming WebSocket messages
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
@@ -319,39 +251,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
         notifyClients();
         return;
     }
-
-    if (message.equalsIgnoreCase("reset")) {
-        Serial.println("Received reset command from client.");
-        manualOverride = false;
-        manualLock = false;
-        notifyClients();
-        return;
-    }
-
-    if (message.equalsIgnoreCase("toggleLock")) {
-        manualLock = !manualLock;
-        Serial.printf("Manual lock toggled to: %s\n", manualLock ? "ON" : "OFF");
-        if (manualLock) {
-            manualOverride = true;
-        } else {
-            manualOverride = true; 
-            manualOverrideStartTime = millis();
-        }
-        notifyClients();
-        return;
-    }
     
     char id_char = message.charAt(0);
     int value = message.substring(message.indexOf(':') + 1).toInt();
     
-    if (id_char == 'm') {
-      manualOverride = true;
-      if (!manualLock) {
-        manualOverrideStartTime = millis();
-        Serial.println("Manual override activated. Timeout timer started.");
-      } else {
-        Serial.println("Manual override (LOCKED).");
-      }
+    manualOverride = true; // Any slider move triggers manual override
+
+    if (id_char == 'm') { // Master slider
       for (int i = 0; i < NUM_CHANNELS; i++) {
         setBrightness(i, value);
       }
@@ -361,6 +267,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   }
 }
 
+// WebSocket event handler
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
              void *arg, uint8_t *data, size_t len) {
   switch (type) {
@@ -374,112 +281,156 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     case WS_EVT_DATA:
       handleWebSocketMessage(arg, data, len);
       break;
-    case WS_EVT_PONG: case WS_EVT_ERROR: break;
+    case WS_EVT_PONG:
+    case WS_EVT_ERROR:
+      break;
   }
 }
 
-// --- Sunset Schedule Functions ---
+// --- New Sunset Schedule Functions ---
 
+// Parses time string "H:MM:SS AM/PM" and returns minutes from midnight
 int parseTime(String timeStr) {
-  if (timeStr.length() < 8) return -1;
+  if (timeStr.length() < 8) return -1; // Invalid format
+
   int hour = timeStr.substring(0, timeStr.indexOf(":")).toInt();
   int minute = timeStr.substring(timeStr.indexOf(":") + 1, timeStr.lastIndexOf(":")).toInt();
-  if (timeStr.indexOf("PM") > 0 && hour != 12) hour += 12;
-  if (timeStr.indexOf("AM") > 0 && hour == 12) hour = 0;
+  
+  if (timeStr.indexOf("PM") > 0 && hour != 12) {
+    hour += 12;
+  }
+  if (timeStr.indexOf("AM") > 0 && hour == 12) { // Midnight case (12 AM is 0 hour)
+    hour = 0;
+  }
+  
   return hour * 60 + minute;
 }
 
+// Fetches sunset time and calculates the daily schedule
 void getAndCalculateSchedule() {
+  String sunsetTimeStr = "";
   HTTPClient http;
+  
+  // Your coordinates
   String url = "http://api.sunrisesunset.io/json?lat=33.020875887379724&lng=-117.13424892282217&timezone=PST&date=today";
-  Serial.print("Fetching sunset time from: "); Serial.println(url);
+  
+  Serial.print("Fetching sunset time from: ");
+  Serial.println(url);
+
   http.begin(url);
   int httpCode = http.GET();
-  if (httpCode == HTTP_CODE_OK) {
-    String payload = http.getString();
-    JsonDocument doc;
-    deserializeJson(doc, payload);
-    String sunsetTimeStr = doc["results"]["sunset"].as<String>();
-    Serial.print("Successfully fetched sunset time: "); Serial.println(sunsetTimeStr);
+
+  if (httpCode > 0) {
+    if (httpCode == HTTP_CODE_OK) {
+      String payload = http.getString();
+      JsonDocument doc;
+      deserializeJson(doc, payload);
+      sunsetTimeStr = doc["results"]["sunset"].as<String>();
+    }
+  } else {
+    Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+  }
+  http.end();
+
+  if (sunsetTimeStr != "") {
+    Serial.print("Successfully fetched sunset time: ");
+    Serial.println(sunsetTimeStr);
     peakBrightTimeMinutes = parseTime(sunsetTimeStr);
-    rampUpStartTimeMinutes = peakBrightTimeMinutes - 90;
-    lightsOffTimeMinutes = 22 * 60 + 30; // 10:30 PM
+    
+    // --- Parameters for the light curve ---
+    rampUpStartTimeMinutes = peakBrightTimeMinutes - 90; // Start ramp 90 minutes before sunset
+    lightsOffTimeMinutes = 22 * 60 + 30; // Lights off at 10:30 PM
+    
     Serial.println("--- Daily Schedule Calculated ---");
     Serial.printf("Ramp Up Start: %02d:%02d\n", rampUpStartTimeMinutes / 60, rampUpStartTimeMinutes % 60);
     Serial.printf("Peak Brightness (Sunset): %02d:%02d\n", peakBrightTimeMinutes / 60, peakBrightTimeMinutes % 60);
     Serial.printf("Lights Off: %02d:%02d\n", lightsOffTimeMinutes / 60, lightsOffTimeMinutes % 60);
     Serial.println("-------------------------------");
+
   } else {
-    Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-    Serial.println("Using fallback values.");
-    peakBrightTimeMinutes = 19 * 60;
+    Serial.println("Failed to fetch sunset time. Using fallback values.");
+    // Fallback schedule if API fails
+    peakBrightTimeMinutes = 19 * 60; // 7:00 PM
     rampUpStartTimeMinutes = peakBrightTimeMinutes - 90;
     lightsOffTimeMinutes = 22 * 60 + 30;
   }
-  http.end();
 }
 
+// The brightness curve function.
+// Takes progress (0.0 to 1.0) and returns brightness multiplier (0.0 to 1.0).
 float curveFunction(float progress) {
-  return progress; // Linear curve
+  // Currently a linear curve.
+  // Replace "return progress;" with a power function for an exponential curve, e.g.:
+  // return pow(progress, 2.0); // '2.0' is the exponent, tweak for desired curve
+  return progress;
 }
 
+// Checks current time and updates light brightness based on the curve
 void updateLightsFromCurve() {
   if (manualOverride) return;
+
   timeClient.update();
   int currentMinutes = timeClient.getHours() * 60 + timeClient.getMinutes();
+
   int targetBrightness = 0;
+
+  // Ramp up period
   if (currentMinutes >= rampUpStartTimeMinutes && currentMinutes < peakBrightTimeMinutes) {
     float progress = (float)(currentMinutes - rampUpStartTimeMinutes) / (peakBrightTimeMinutes - rampUpStartTimeMinutes);
     targetBrightness = curveFunction(progress) * 100.0;
-  } else if (currentMinutes >= peakBrightTimeMinutes && currentMinutes < lightsOffTimeMinutes) {
+  }
+  // Ramp down period
+  else if (currentMinutes >= peakBrightTimeMinutes && currentMinutes < lightsOffTimeMinutes) {
     float progress = (float)(currentMinutes - peakBrightTimeMinutes) / (lightsOffTimeMinutes - peakBrightTimeMinutes);
-    targetBrightness = (1.0 - curveFunction(progress)) * 100.0;
-  } else {
+    targetBrightness = (1.0 - curveFunction(progress)) * 100.0; // Ramp down from 100 to 0
+  }
+  // Outside the active window
+  else {
     targetBrightness = 0;
   }
+
   bool stateChanged = false;
   if (brightness[0] != targetBrightness) {
     stateChanged = true;
   }
+
   for (int i = 0; i < NUM_CHANNELS; i++) {
     setBrightness(i, targetBrightness);
   }
+
   if (stateChanged) {
     notifyClients();
   }
 }
 
-void checkManualOverrideTimeout() {
-  if (manualOverride && !manualLock) {
-    if (millis() - manualOverrideStartTime > MANUAL_OVERRIDE_TIMEOUT) {
-      Serial.println("Manual override timed out. Reverting to auto schedule.");
-      manualOverride = false;
-      notifyClients();
-    }
-  }
-}
-
 void setup() {
   Serial.begin(115200);
+
   for (int i = 0; i < NUM_CHANNELS; i++) {
     ledcSetup(i, PWM_FREQ, PWM_RESOLUTION);
     ledcAttachPin(ledPins[i], i);
     setBrightness(i, 0);
   }
+
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi...");
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500); Serial.print(".");
+    delay(500);
+    Serial.print(".");
   }
-  Serial.println("\nConnected! IP Address: "); Serial.println(WiFi.localIP());
-  
+  Serial.println("\nConnected! IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  // Fetch sunset time and calculate schedule
   getAndCalculateSchedule();
-  
+
   ws.onEvent(onEvent);
   server.addHandler(&ws);
+
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/html", index_html);
+    request->send_P(200, "text/html", index_html);
   });
+
   server.begin();
   timeClient.begin();
   ArduinoOTA.setHostname("esp32-light-controller");
@@ -491,9 +442,9 @@ void loop() {
   ws.cleanupClients();
 
   static unsigned long lastUpdate = 0;
+  // Update lights based on curve every 5 seconds
   if (millis() - lastUpdate > 5000) { 
     lastUpdate = millis();
-    checkManualOverrideTimeout();
     updateLightsFromCurve();
   }
   
